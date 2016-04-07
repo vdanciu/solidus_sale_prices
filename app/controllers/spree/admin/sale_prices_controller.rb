@@ -4,20 +4,16 @@ module Spree
 
       before_filter :load_product
 
-      respond_to :js, :html
-
       def create
         @sale_price = @product.put_on_sale(sale_price_amount, sale_price_params)
         redirect_to admin_product_sale_prices_path(@product)
       end
 
-      def destroy
-        @sale_price = Spree::SalePrice.find(params[:id])
-        @sale_price.destroy
-        respond_with(@sale_price)
-      end
-
       private
+
+      def location_after_save
+        admin_product_sale_prices_path(@product)
+      end
 
       def load_product
         @product = Spree::Product.find_by(slug: params[:product_id])

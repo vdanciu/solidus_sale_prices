@@ -34,5 +34,13 @@
         <%= f.text_field :end_at, class: "datepicker" %>
       </div>
     </div>
+    <div class="omega four columns">
+      <div data-hook="sale_price_enabled" class="field checkbox">
+        <label>
+          <%= f.check_box :enabled %>
+          <%= t('sale_price_enabled') %>
+        </label>
+      </div>
+    </div>
   </div>
 </div>

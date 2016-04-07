@@ -5,6 +5,11 @@
   <td><%= (l sale_price.end_at) if sale_price.end_at %></td>
   <td class="align-center"><%= sale_price.enabled %></td>
   <td class="actions">
-    <%= link_to_delete sale_price, {url: admin_product_sale_price_url(product, sale_price.id), no_text: true} %>
+    <% if can?(:edit, sale_price) %>
+      <%= link_to_edit sale_price, { url: edit_admin_product_sale_price_url(product, sale_price.id), :no_text => true } %>
+    <% end %>
+    <% if can?(:destroy, sale_price) %>
+      <%= link_to_delete sale_price, {url: admin_product_sale_price_url(product, sale_price.id), no_text: true} %>
+    <% end %>
   </td>
 </tr>
