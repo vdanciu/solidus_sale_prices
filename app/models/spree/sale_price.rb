@@ -7,7 +7,7 @@ module Spree
     has_one :variant, through: :price
 
     has_one :calculator, class_name: "Spree::Calculator", as: :calculable, dependent: :destroy
-    validates :calculator, presence: true
+    validates :calculator, :price, presence: true
     accepts_nested_attributes_for :calculator
 
     scope :active, -> { where(enabled: true).where('(start_at <= ? OR start_at IS NULL) AND (end_at >= ? OR end_at IS NULL)', Time.now, Time.now) }
