@@ -2,7 +2,7 @@ module Spree
   class SalePrice < ActiveRecord::Base
     acts_as_paranoid
 
-    belongs_to :price, class_name: "Spree::Price"
+    belongs_to :price, class_name: "Spree::Price", touch: true
     delegate :currency, :currency=, to: :price, allow_nil: true
 
     has_one :variant, through: :price
