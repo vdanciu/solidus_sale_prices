@@ -23,4 +23,5 @@ SpreeSalePrices = {
 
 $(document).ready(function() {
   SpreeSalePrices.init();
+  $('.variant_sales_picker').select2();
 });
