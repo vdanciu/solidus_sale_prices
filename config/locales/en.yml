@@ -2,6 +2,11 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
+  original_price: "Original Price (Standard Currency)"
+  sale_price_amount: "Sale Price"
+  sale_price_currency: "Currency"
+  sale_price_start_at: "Sale Start Date"
+  sale_price_end_at: "Sale End Date"
   spree:
     add_product_sale_prices: "Add Product Sale Price"
     back_to_sale_prices_list: "Back to Sale Price List"
