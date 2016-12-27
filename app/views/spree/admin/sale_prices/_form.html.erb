@@ -1,46 +1,61 @@
-<div data-hook="admin_sale_price_form_fields">
-  <div class='row'>
-    <div class="alpha four columns">
-      <div data-hook="original_price" class="field">
-        <%= label_tag Spree.t('sale_price_original_price') %>
-        <%= text_field_tag '', @product.original_price.to_f, disabled: true, class: 'fullwidth' %>
+<fieldset id="sale_price_form">
+  <legend align="center">
+    <% if sale_price.new_record? %>
+      <%= Spree.t('add_product_sale_prices') %>
+    <% else %>
+      <%= Spree.t('update_product_sale_price') %>
+    <% end %>
+  </legend>
+
+  <%= form_for [:admin, product, sale_price], remote: true do |f| %>
+    <div class="row">
+      <div class="columns four">
+        <%= f.label :original_price, Spree.t('original_price') %><br />
+        <%= f.text_field :original_price, value: product.original_price, disabled: true %>
+      </div>
+      <div class="columns four">
+        <%= f.label :value, Spree.t('sale_price_amount') %><br />
+        <%= f.text_field :value %>
+      </div>
+      <div class="columns two">
+        <%= f.label :currency, Spree.t('sale_price_currency') %><br />
+        <%= f.select :currency, options_for_select(supported_currencies_for_sale_price) %>
       </div>
     </div>
-    <div class="four columns">
-      <div data-hook="sale_price_amount" class="field">
-        <%= f.label :value, Spree.t('sale_price_amount') %>
-        <%= f.text_field :value, class: 'fullwidth' %>
+
+    <% if product.has_variants? %>
+      <div class="row">
+        <div class="columns ten">
+          <%= label_tag 'variant_ids[]', Spree.t('variants') %><br />
+          <%= select_tag 'variant_ids[]',
+                         options_from_collection_for_select(
+                         product.variants_including_master, :id, :sku_and_options_text),
+                         multiple: true, class: 'variant_sales_picker' %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="row">
+      <div class="columns four">
+        <%= f.label :start_at, Spree.t('sale_price_start_at') %><br />
+        <%= f.text_field :start_at, class: "datetimepicker",
+                                    value: sale_price.start_at.present? ? l(sale_price.start_at, format: :datetimepicker) : "" %>
+      </div>
+      <div class="columns four">
+        <%= f.label :end_at, Spree.t('sale_price_end_at') %><br />
+        <%= f.text_field :end_at, class: "datetimepicker",
+                                  value: sale_price.end_at.present? ? l(sale_price.end_at, format: :datetimepicker) : "" %>
       </div>
     </div>
-    <div class="omega four columns">
-      <div data-hook="sale_price_currency" class="field checkbox">
-        <label>
-          <%= f.label :currency, Spree.t('sale_price_currency') %>
-          <%= f.select :currency, options_for_select(supported_currencies_for_sale_price), {}, class: 'select2' %>
-        </label>
+
+    <div class="row">
+      <div class="columns three">
+        <% if sale_price.new_record? %>
+          <%= f.submit Spree.t('add_sale_button') %>
+        <% else %>
+          <%= f.submit Spree.t('update_sale_button') %>
+        <% end %>
       </div>
     </div>
-  </div>
-  <div class='row'>
-    <div class="alpha four columns">
-      <div data-hook="sale_price_start_at" class="field">
-        <%= f.label :start_at, Spree.t('sale_price_start_at') %>
-        <%= f.text_field :start_at, class: "datetimepicker" %>
-      </div>
-    </div>
-    <div class="four columns">
-      <div data-hook="sale_price_end_at" class="field">
-        <%= f.label :end_at, Spree.t('sale_price_end_at') %>
-        <%= f.text_field :end_at, class: "datetimepicker" %>
-      </div>
-    </div>
-    <div class="omega four columns">
-      <div data-hook="sale_price_enabled" class="field checkbox">
-        <label>
-          <%= f.check_box :enabled %>
-          <%= Spree.t('sale_price_enabled') %>
-        </label>
-      </div>
-    </div>
-  </div>
-</div>
+  <% end %>
+</fieldset>
