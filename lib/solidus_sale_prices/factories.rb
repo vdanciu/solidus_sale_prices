@@ -1,5 +1,3 @@
-require 'ffaker'
-
 FactoryGirl.define do
   # Define your Spree extensions Factories within this file to enable applications, and other extensions to use and override them.
   #
@@ -21,7 +19,7 @@ FactoryGirl.define do
   end
 
   factory :international_price, parent: :price do
-    currency { FFaker::Currency.code }
+    currency { Money::Currency.all.map(&:iso_code).sample }
   end
 
   factory :multi_price_variant, parent: :variant do
@@ -33,5 +31,4 @@ FactoryGirl.define do
       create_list(:international_price, evaluator.prices_count, variant: variant)
     end
   end
-
 end
