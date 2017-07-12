@@ -2,7 +2,11 @@ Spree::Variant.class_eval do
 
   has_many :sale_prices, through: :prices
 
-  delegate :sale_price, :original_price, :on_sale?, :discount_percent, to: :default_price
+  delegate :on_sale?,
+           :sale_price, :sale_price=,
+           :original_price, :original_price=,
+           :discount_percent, :discount_percent=,
+           to: :default_price
 
   def put_on_sale(value, params = {})
     currencies = params.fetch(:currencies, [])
