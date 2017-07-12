@@ -1,5 +1,6 @@
 source 'http://rubygems.org'
 
-gem "solidus", github: 'solidusio/solidus', branch: 'master'
+branch = ENV.fetch('SOLIDUS_BRANCH', 'master')
+gem "solidus", github: "solidusio/solidus", branch: branch
 
 gemspec
