@@ -55,4 +55,12 @@ describe Spree::Price do
     end
   end
 
+  it 'destroys all sale prices when it is destroyed' do
+    price = create(:price)
+    price.put_on_sale 10
+
+    expect { price.destroy }
+      .to change { Spree::SalePrice.all.size }
+      .from(1).to(0)
+  end
 end

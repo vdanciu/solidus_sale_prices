@@ -1,5 +1,6 @@
 module Spree
   class SalePrice < ActiveRecord::Base
+    acts_as_paranoid
 
     belongs_to :price, class_name: "Spree::Price"
     delegate :currency, :currency=, to: :price
@@ -56,7 +57,7 @@ module Spree
 
     protected
       def touch_product
-        self.variant.product.touch
+        self.price.variant.product.touch unless deleted?
       end
 
   end
