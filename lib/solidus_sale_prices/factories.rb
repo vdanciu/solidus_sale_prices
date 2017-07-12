@@ -22,13 +22,18 @@ FactoryGirl.define do
     currency { Money::Currency.all.map(&:iso_code).sample }
   end
 
-  factory :multi_price_variant, parent: :variant do
-    transient do
-      prices_count 3
-    end
+  factory :eur_price, parent: :price do
+    currency { 'EUR' }
+  end
 
-    after(:create) do |variant, evaluator|
-      create_list(:international_price, evaluator.prices_count, variant: variant)
+  factory :usd_price, parent: :price do
+    currency { 'USD' }
+  end
+
+  factory :multi_price_variant, parent: :variant do
+    after(:create) do |variant, _evaluator|
+      create(:eur_price, variant: variant)
+      create(:usd_price, variant: variant)
     end
   end
 end

@@ -24,7 +24,7 @@ describe Spree::Variant do
   end
 
   it 'changes the price for each specific currency' do
-    variant = create(:multi_price_variant, prices_count: 5)
+    variant = create(:multi_price_variant)
 
     variant.prices.each do |p|
       variant.put_on_sale 10.95, { currencies: [ p.currency ] }
@@ -35,7 +35,7 @@ describe Spree::Variant do
   end
 
   it 'changes the price for multiple currencies' do
-    variant = create(:multi_price_variant, prices_count: 5)
+    variant = create(:multi_price_variant)
     some_prices = variant.prices.sample(3)
 
     variant.put_on_sale(10.95, {
@@ -51,7 +51,7 @@ describe Spree::Variant do
   end
 
   it 'can set the original price to something different without changing the sale price' do
-    variant = create(:multi_price_variant, prices_count: 5)
+    variant = create(:multi_price_variant)
     variant.put_on_sale(10.95)
     variant.prices.each do |p|
       p.original_price = 12.90
@@ -66,7 +66,7 @@ describe Spree::Variant do
   end
 
   it 'is not on sale anymore if the original price is lower than the sale price' do
-    variant = create(:multi_price_variant, prices_count: 5)
+    variant = create(:multi_price_variant)
     variant.put_on_sale(10.95)
     variant.prices.each do |p|
       p.original_price = 9.90
@@ -83,7 +83,7 @@ describe Spree::Variant do
   context 'with a valid sale' do
 
     before(:each) do
-      @variant = create(:multi_price_variant, prices_count: 5)
+      @variant = create(:multi_price_variant)
       @variant.put_on_sale(10.95) # sale is started and enabled at this point for all currencies
     end
 
@@ -112,7 +112,7 @@ describe Spree::Variant do
     end
 
     it 'can stop and start a sale for specific currencies' do
-      price_groups = @variant.prices.in_groups(2)
+      price_groups = @variant.prices.partition { |p| p.currency == 'EUR' }
       @variant.stop_sale(price_groups.first.map(&:currency))
 
       price_groups.first.each do |p|
@@ -123,13 +123,16 @@ describe Spree::Variant do
       end
 
       @variant.start_sale(1.second.ago, price_groups.first.map(&:currency))
+
+
+
       @variant.prices.each do |p|
         expect(@variant.on_sale_in?(p.currency)).to be true
       end
     end
 
     it 'can disable and enable a sale for specific currencies' do
-      price_groups = @variant.prices.in_groups(2)
+      price_groups = @variant.prices.partition { |p| p.currency == 'EUR' }
       @variant.disable_sale(price_groups.first.map(&:currency))
 
       price_groups.first.each do |p|
