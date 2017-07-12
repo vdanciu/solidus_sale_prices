@@ -31,7 +31,7 @@ describe Spree::SalePrice do
     money = sale_price.display_price
 
     expect(money).to be_a Spree::Money
-    expect(money.money.amount).to eq(sale_price.calculated_price)
+    expect(money.money.amount.to_f).to be_within(0.1).of(sale_price.calculated_price.to_f)
     expect(money.money.currency).to eq(sale_price.currency)
   end
 
