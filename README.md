@@ -1,6 +1,8 @@
 Spree Sale Prices
 =================
 
+[![Build Status](https://travis-ci.org/nebulab/solidus_sale_prices.svg?branch=master)](https://travis-ci.org/nebulab/solidus_sale_prices)
+
 A Solidus extension (Rails Engine) that lets you set sale prices on products, either by a fixed sale price or a
 percentage off of the original price. Sale prices have a start date, end date and enabled flag to allow you to schedule
 sales, have a historical record of sale prices and put sales on hold.
