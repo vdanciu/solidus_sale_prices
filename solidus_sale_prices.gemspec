@@ -30,4 +30,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'factory_girl', '~> 4.5'
   s.add_development_dependency 'simplecov', '~> 0.9'
   s.add_development_dependency 'sqlite3', '~> 1.3'
+  s.add_development_dependency 'pry'
 end

@@ -10,6 +10,8 @@ SimpleCov.start do
   add_group 'Libraries', 'lib'
 end
 
+require 'pry'
+
 # Configure Rails Environment
 ENV['RAILS_ENV'] = 'test'
 
