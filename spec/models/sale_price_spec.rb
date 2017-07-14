@@ -35,4 +35,36 @@ describe Spree::SalePrice do
     expect(money.money.currency).to eq(sale_price.currency)
   end
 
+  context 'touching associated product when destroyed' do
+    subject { -> { sale_price.destroy } }
+    let!(:product) { sale_price.product }
+    let(:sale_price) { Timecop.travel(1.day.ago) { create(:sale_price) } }
+
+    it { is_expected.to change { sale_price.product.reload.updated_at } }
+
+    context 'when associated product has been destroyed' do
+      it 'does not touch product' do
+        expect(sale_price).to receive(:product).and_return nil
+
+        expect(subject).not_to change { product.reload.updated_at }
+      end
+    end
+
+    context 'when associated variant has been destroyed' do
+      it 'does not touch product' do
+        expect(sale_price).to receive(:variant).and_return nil
+
+        expect(subject).not_to change { product.reload.updated_at }
+      end
+    end
+
+    context 'when associated price has been destroyed' do
+      it 'does not touch product' do
+        sale_price.price.delete
+        sale_price.reload
+
+        expect(subject).not_to change { product.reload.updated_at }
+      end
+    end
+  end
 end
