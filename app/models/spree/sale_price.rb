@@ -6,6 +6,7 @@ module Spree
     delegate :currency, :currency=, to: :price
 
     has_one :variant, through: :price
+    delegate :product, to: :variant, allow_nil: true
 
     has_one :calculator, class_name: "Spree::Calculator", as: :calculable, dependent: :destroy
     validates :calculator, :price, presence: true
@@ -56,9 +57,9 @@ module Spree
     end
 
     protected
-      def touch_product
-        self.price.variant.product.touch unless deleted?
-      end
 
+    def touch_product
+      product.try(:touch) if price
+    end
   end
 end
