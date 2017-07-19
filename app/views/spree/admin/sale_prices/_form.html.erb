@@ -2,20 +2,20 @@
   <div class='row'>
     <div class="alpha four columns">
       <div data-hook="original_price" class="field">
-        <%= label_tag t('original_price') %>
+        <%= label_tag Spree.t('sale_price_original_price') %>
         <%= text_field_tag '', @product.original_price.to_f, disabled: true, class: 'fullwidth' %>
       </div>
     </div>
     <div class="four columns">
       <div data-hook="sale_price_amount" class="field">
-        <%= f.label :value, t('sale_price_amount') %>
+        <%= f.label :value, Spree.t('sale_price_amount') %>
         <%= f.text_field :value, class: 'fullwidth' %>
       </div>
     </div>
     <div class="omega four columns">
       <div data-hook="sale_price_currency" class="field checkbox">
         <label>
-          <%= f.label :currency, t('sale_price_currency') %>
+          <%= f.label :currency, Spree.t('sale_price_currency') %>
           <%= f.select :currency, options_for_select(supported_currencies_for_sale_price), {}, class: 'select2' %>
         </label>
       </div>
@@ -24,13 +24,13 @@
   <div class='row'>
     <div class="alpha four columns">
       <div data-hook="sale_price_start_at" class="field">
-        <%= f.label :start_at, t('sale_price_start_at') %>
+        <%= f.label :start_at, Spree.t('sale_price_start_at') %>
         <%= f.text_field :start_at, class: "datepicker" %>
       </div>
     </div>
     <div class="four columns">
       <div data-hook="sale_price_end_at" class="field">
-        <%= f.label :end_at, t('sale_price_end_at') %>
+        <%= f.label :end_at, Spree.t('sale_price_end_at') %>
         <%= f.text_field :end_at, class: "datepicker" %>
       </div>
     </div>
@@ -38,7 +38,7 @@
       <div data-hook="sale_price_enabled" class="field checkbox">
         <label>
           <%= f.check_box :enabled %>
-          <%= t('sale_price_enabled') %>
+          <%= Spree.t('sale_price_enabled') %>
         </label>
       </div>
     </div>

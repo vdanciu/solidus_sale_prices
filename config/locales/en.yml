@@ -2,13 +2,17 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
-  sale_price: "Sale Price"
-  original_price: "Original Price (Standard Currency)"
-  product_sale_prices: "Product Sale Prices"
-  add_product_sale_prices: "Add Product Sale Price"
-  sale_price_amount: 'Amount'
-  sale_price_active: 'Active'
-  sale_price_currency: "Currency"
-  sale_price_start_at: "Sale Start Date"
-  sale_price_end_at: "Sale End Date"
-  sale_price_enabled: "Enabled"
+  spree:
+    add_product_sale_prices: "Add Product Sale Price"
+    back_to_sale_prices_list: "Back to Sale Price List"
+    new_sale_price: "New Sale Price"
+    original_price: "Original Price (Standard Currency)"
+    product_sale_prices: "Product Sale Prices"
+    sale_price: "Sale Price"
+    sale_price_active: 'Active'
+    sale_price_amount: 'Amount'
+    sale_price_currency: "Currency"
+    sale_price_enabled: "Enabled"
+    sale_price_end_at: "Sale End Date"
+    sale_price_original_price: "Original Price"
+    sale_price_start_at: "Sale Start Date"
