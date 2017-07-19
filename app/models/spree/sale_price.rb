@@ -3,7 +3,7 @@ module Spree
     acts_as_paranoid
 
     belongs_to :price, class_name: "Spree::Price"
-    delegate :currency, :currency=, to: :price
+    delegate :currency, :currency=, to: :price, allow_nil: true
 
     has_one :variant, through: :price
     delegate :product, to: :variant, allow_nil: true
