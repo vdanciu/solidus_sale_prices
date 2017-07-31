@@ -12,7 +12,7 @@ module Spree
     validates :calculator, :price, presence: true
     accepts_nested_attributes_for :calculator
 
-    scope :ordered, -> { order(:start_at) }
+    scope :ordered, -> { order('start_at IS NOT NULL, start_at ASC') }
     scope :active, -> { where(enabled: true).where('(start_at <= ? OR start_at IS NULL) AND (end_at >= ? OR end_at IS NULL)', Time.now, Time.now) }
 
     # TODO make this work or remove it
