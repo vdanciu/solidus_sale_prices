@@ -6,7 +6,7 @@ module Spree
     delegate :currency, :currency=, to: :price, allow_nil: true
 
     has_one :variant, through: :price
-    delegate :product, to: :variant, allow_nil: true
+    has_one :product, through: :variant
 
     has_one :calculator, class_name: "Spree::Calculator", as: :calculable, dependent: :destroy
     validates :calculator, :price, presence: true
@@ -15,7 +15,6 @@ module Spree
     scope :ordered, -> { order(:start_at) }
     scope :active, -> { where(enabled: true).where('(start_at <= ? OR start_at IS NULL) AND (end_at >= ? OR end_at IS NULL)', Time.now, Time.now) }
 
-    before_destroy :touch_product
     # TODO make this work or remove it
     #def self.calculators
     #  Rails.application.config.spree.calculators.send(self.to_s.tableize.gsub('/', '_').sub('spree_', ''))
@@ -60,12 +59,6 @@ module Spree
     # Convenience method for displaying the price of a given sale_price in the table
     def display_price
       Spree::Money.new(value || 0, { currency: price.currency })
-    end
-
-    protected
-
-    def touch_product
-      product.try(:touch) if price
     end
   end
 end

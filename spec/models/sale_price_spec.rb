@@ -36,33 +36,32 @@ describe Spree::SalePrice do
   end
 
   context 'touching associated product when destroyed' do
-    subject { -> { sale_price.destroy } }
+    subject { -> { sale_price.reload.destroy } }
     let!(:product) { sale_price.product }
     let(:sale_price) { Timecop.travel(1.day.ago) { create(:sale_price) } }
 
-    it { is_expected.to change { sale_price.product.reload.updated_at } }
+    it { is_expected.to change { product.reload.updated_at } }
 
-    context 'when associated product has been destroyed' do
+    context 'when product association has been destroyed' do
+      before { sale_price.variant.update_attributes(product_id: nil) }
+
       it 'does not touch product' do
-        expect(sale_price).to receive(:product).and_return nil
-
         expect(subject).not_to change { product.reload.updated_at }
       end
     end
 
     context 'when associated variant has been destroyed' do
-      it 'does not touch product' do
-        expect(sale_price).to receive(:variant).and_return nil
+      before { sale_price.variant.destroy }
 
+      it 'does not touch product' do
         expect(subject).not_to change { product.reload.updated_at }
       end
     end
 
     context 'when associated price has been destroyed' do
-      it 'does not touch product' do
-        sale_price.price.delete
-        sale_price.reload
+      before { sale_price.price.destroy }
 
+      it 'does not touch product' do
         expect(subject).not_to change { product.reload.updated_at }
       end
     end
