@@ -21,6 +21,7 @@ require 'rspec/rails'
 require 'database_cleaner'
 require 'ffaker'
 require 'timecop'
+require 'capybara/poltergeist'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
@@ -87,4 +88,9 @@ RSpec.configure do |config|
 
   config.fail_fast = ENV['FAIL_FAST'] || false
   config.order = "random"
+
+  Capybara.javascript_driver = :poltergeist
+  Capybara.register_driver :poltergeist do |app|
+    Capybara::Poltergeist::Driver.new(app, timeout: 1.minute, phantomjs_options: ['--load-images=no'])
+  end
 end

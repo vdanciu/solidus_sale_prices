@@ -2,23 +2,28 @@ module Spree
   class SalePrice < ActiveRecord::Base
     acts_as_paranoid
 
-    belongs_to :price, class_name: "Spree::Price"
+    belongs_to :price, class_name: "Spree::Price", touch: true
     delegate :currency, :currency=, to: :price, allow_nil: true
 
     has_one :variant, through: :price
-    delegate :product, to: :variant, allow_nil: true
+    has_one :product, through: :variant
 
     has_one :calculator, class_name: "Spree::Calculator", as: :calculable, dependent: :destroy
     validates :calculator, :price, presence: true
     accepts_nested_attributes_for :calculator
 
+    scope :ordered, -> { order('start_at IS NOT NULL, start_at ASC') }
     scope :active, -> { where(enabled: true).where('(start_at <= ? OR start_at IS NULL) AND (end_at >= ? OR end_at IS NULL)', Time.now, Time.now) }
 
-    before_destroy :touch_product
     # TODO make this work or remove it
     #def self.calculators
     #  Rails.application.config.spree.calculators.send(self.to_s.tableize.gsub('/', '_').sub('spree_', ''))
     #end
+
+    def self.for_product(product)
+      ids = product.variants_including_master
+      ordered.where(price_id: Spree::Price.where(variant_id: ids))
+    end
 
     def calculator_type
       calculator.class.to_s if calculator
@@ -54,12 +59,6 @@ module Spree
     # Convenience method for displaying the price of a given sale_price in the table
     def display_price
       Spree::Money.new(value || 0, { currency: price.currency })
-    end
-
-    protected
-
-    def touch_product
-      product.try(:touch) if price
     end
   end
 end

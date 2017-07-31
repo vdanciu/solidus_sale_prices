@@ -36,35 +36,64 @@ describe Spree::SalePrice do
   end
 
   context 'touching associated product when destroyed' do
-    subject { -> { sale_price.destroy } }
+    subject { -> { sale_price.reload.destroy } }
     let!(:product) { sale_price.product }
     let(:sale_price) { Timecop.travel(1.day.ago) { create(:sale_price) } }
 
-    it { is_expected.to change { sale_price.product.reload.updated_at } }
+    it { is_expected.to change { product.reload.updated_at } }
 
-    context 'when associated product has been destroyed' do
+    context 'when product association has been destroyed' do
+      before { sale_price.variant.update_attributes(product_id: nil) }
+
       it 'does not touch product' do
-        expect(sale_price).to receive(:product).and_return nil
-
         expect(subject).not_to change { product.reload.updated_at }
       end
     end
 
     context 'when associated variant has been destroyed' do
-      it 'does not touch product' do
-        expect(sale_price).to receive(:variant).and_return nil
+      before { sale_price.variant.destroy }
 
+      it 'does not touch product' do
         expect(subject).not_to change { product.reload.updated_at }
       end
     end
 
     context 'when associated price has been destroyed' do
-      it 'does not touch product' do
-        sale_price.price.delete
-        sale_price.reload
+      before { sale_price.price.destroy }
 
+      it 'does not touch product' do
         expect(subject).not_to change { product.reload.updated_at }
       end
+    end
+  end
+
+  describe '.ordered' do
+    subject { described_class.ordered }
+
+    let!(:forever) { create(:sale_price) }
+    let!(:future) { create(:sale_price, start_at: 10.days.from_now) }
+    let!(:past) { create(:sale_price, start_at: 10.days.ago) }
+    let!(:present) { create(:active_sale_price) }
+
+    it { is_expected.to match [forever, past, present, future] }
+  end
+
+  describe '.for_product' do
+    subject { described_class.for_product(product) }
+
+    before { product.put_on_sale(10.95) }
+
+    context 'without variants' do
+      let(:product) { create(:product) }
+
+      it { is_expected.to match product.master.sale_prices }
+    end
+
+    context 'with variants' do
+      let(:variant) { create(:variant) }
+      let(:product) { variant.product }
+
+      it { is_expected.to match variant.sale_prices + product.master.sale_prices }
     end
   end
 end

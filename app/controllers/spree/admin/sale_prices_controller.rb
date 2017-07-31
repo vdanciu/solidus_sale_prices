@@ -4,9 +4,24 @@ module Spree
 
       before_filter :load_product
 
+      respond_to :js, :html
+
+      def index
+        @sale_prices = Spree::SalePrice.for_product(@product)
+      end
+
       def create
-        @sale_price = @product.put_on_sale(sale_price_amount, sale_price_params)
-        redirect_to admin_product_sale_prices_path(@product)
+        @sale_price = @product.put_on_sale(params[:sale_price][:value],
+                                           sale_price_params, selected_variant_ids)
+
+        @sale_prices = Spree::SalePrice.for_product(@product)
+        respond_with(@sale_price)
+      end
+
+      def destroy
+        @sale_price = Spree::SalePrice.find(params[:id])
+        @sale_price.destroy
+        respond_with(@sale_price)
       end
 
       private
@@ -20,8 +35,8 @@ module Spree
         redirect_to request.referer unless @product.present?
       end
 
-      def sale_price_amount
-        params[:sale_price][:value].present? ? params[:sale_price][:value] : 0
+      def selected_variant_ids
+        params.fetch(:variant_ids, [])
       end
 
       def sale_price_params
