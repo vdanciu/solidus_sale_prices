@@ -50,6 +50,7 @@ RSpec.configure do |config|
   # visit spree.admin_path
   # current_path.should eql(spree.products_path)
   config.include Spree::TestingSupport::UrlHelpers
+  config.include Spree::BaseHelper
 
   # == Mock Framework
   #
@@ -90,6 +91,7 @@ RSpec.configure do |config|
   config.order = "random"
 
   Capybara.javascript_driver = :poltergeist
+  Capybara.default_max_wait_time = 5
   Capybara.register_driver :poltergeist do |app|
     Capybara::Poltergeist::Driver.new(app, timeout: 1.minute, phantomjs_options: ['--load-images=no'])
   end

@@ -16,12 +16,16 @@ SpreeSalePrices = {
     });
   },
 
+  handleSelect2Fields: function() {
+    $('.variant_sales_picker').select2();
+  },
+
   init: function() {
     SpreeSalePrices.handleDatetimePickerFields();
+    SpreeSalePrices.handleSelect2Fields();
   }
 }
 
 $(document).ready(function() {
   SpreeSalePrices.init();
-  $('.variant_sales_picker').select2();
 });

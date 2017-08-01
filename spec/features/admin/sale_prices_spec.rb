@@ -108,4 +108,38 @@ RSpec.feature 'Admin sale prices' do
       end
     end
   end
+
+  context 'when editing sale prices', js: true do
+    around { |example| Timecop.freeze { example.run } }
+
+    before do
+      small.put_on_sale(54.95, start_at: 1.day.ago, end_at: 1.day.from_now)
+      medium
+    end
+
+    scenario 'updates the sale price inplace' do
+      visit spree.admin_product_sale_prices_path(product_id: product.slug)
+
+      find('[data-action="edit"]').click
+      expect(page).to have_selector('[data-hook="products_row"]', count: 1)
+
+      expect(find_field('Sale Price', with: '54.95')).to be_visible
+      expect(find_field('Sale Start Date', with: I18n.l(1.day.ago, format: :datetimepicker))).to be_visible
+      expect(find_field('Sale End Date', with: I18n.l(1.day.from_now, format: :datetimepicker))).to be_visible
+
+      fill_in('Sale Price', with: 32.33)
+      fill_in('Sale Start Date', with: I18n.l(2.days.ago, format: :datetimepicker))
+      fill_in('Sale End Date', with: I18n.l(2.days.from_now, format: :datetimepicker))
+      click_button('Update Sale Price')
+
+      expect(page).to have_selector('[data-hook="products_row"]', count: 1)
+      within('[data-hook="products_row"]') do
+        expect(page).to have_content(small.sku)
+        expect(page).to have_content('32.33')
+
+        within('.start-date') { expect(page).to have_content(pretty_time(2.days.ago)) }
+        within('.end-date') { expect(page).to have_content(pretty_time(2.days.from_now)) }
+      end
+    end
+  end
 end
