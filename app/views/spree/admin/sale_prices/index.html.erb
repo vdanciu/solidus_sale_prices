@@ -1,11 +1,5 @@
 <%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => "Product Sale Prices"} %>
 
-<%- content_for :page_actions do %>
-  <%- if can?(:create, Spree::SalePrice) %>
-    <li><%= link_to_with_icon('plus', Spree.t(:new_sale_price), new_admin_product_sale_price_url(@product), :id => 'new_sale_price_link', :class => 'button') %></li>
-  <%- end %>
-<%- end %>
-
 <div id="add-line-item">
   <%= render 'form', product: @product, sale_price: Spree::SalePrice.new %>
 </div>

@@ -18,10 +18,6 @@ module Spree
         respond_with(@sale_price)
       end
 
-      def edit
-        @sale_price = Spree::SalePrice.find(params[:id])
-      end
-
       def update
         Spree::SalePrice.destroy(params[:id])
         @sale_price = @product.put_on_sale(params[:sale_price][:value],
