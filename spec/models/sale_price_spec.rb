@@ -43,7 +43,7 @@ describe Spree::SalePrice do
     it { is_expected.to change { product.reload.updated_at } }
 
     context 'when product association has been destroyed' do
-      before { sale_price.variant.update_attributes(product_id: nil) }
+      before { sale_price.variant.update_columns(product_id: nil) }
 
       it 'does not touch product' do
         expect(subject).not_to change { product.reload.updated_at }
