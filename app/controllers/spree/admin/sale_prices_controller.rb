@@ -1,8 +1,7 @@
 module Spree
   module Admin
     class SalePricesController < ResourceController
-
-      before_filter :load_product
+      before_action :load_product
 
       respond_to :js, :html
 

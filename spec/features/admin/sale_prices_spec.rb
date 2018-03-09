@@ -18,7 +18,7 @@ RSpec.feature 'Admin sale prices' do
   end
 
   context 'when listing sale prices' do
-    before { product.put_on_sale(20.25) }
+    before { product.put_on_sale(20.25, start_at: 1.hour.from_now) }
 
     scenario 'with the master variant the product sale is shown' do
       visit spree.admin_product_sale_prices_path(product_id: product.slug)
@@ -35,7 +35,7 @@ RSpec.feature 'Admin sale prices' do
       before do
         small.put_on_sale(10.95, start_at: 5.days.from_now)
         medium.put_on_sale(11.95, start_at: 10.days.from_now)
-        large.put_on_sale(32.21)
+        large.put_on_sale(32.21, start_at: 2.hours.from_now)
       end
 
       scenario 'a list of variant sale prices is shown and sorted by start_at' do
@@ -100,9 +100,9 @@ RSpec.feature 'Admin sale prices' do
         fill_in('Sale Price', with: 32.33)
         fill_in('Sale Start Date', with: '2016/12/11 16:12')
         fill_in('Sale End Date', with: '2016/12/17 05:35 pm')
-        select(product.master.sku_and_options_text, from: 'Variants')
-        select(small.sku_and_options_text, from: 'Variants')
-        select(medium.sku_and_options_text, from: 'Variants')
+        select(product.master.sku_and_options_text, from: 'Variants', visible: false)
+        select(small.sku_and_options_text, from: 'Variants', visible: false)
+        select(medium.sku_and_options_text, from: 'Variants', visible: false)
         click_button('Add Sale Price')
         expect(page).to have_selector('[data-hook="products_row"]', count: 3)
       end
@@ -113,8 +113,8 @@ RSpec.feature 'Admin sale prices' do
         fill_in('Sale Price', with: 32.33)
         fill_in('Sale Start Date', with: '2016/12/11 16:12')
         fill_in('Sale End Date', with: '2016/12/17 05:35 pm')
-        select(small.sku_and_options_text, from: 'Variants')
-        select(medium.sku_and_options_text, from: 'Variants')
+        select(small.sku_and_options_text, from: 'Variants', visible: false)
+        select(medium.sku_and_options_text, from: 'Variants', visible: false)
         click_button('Add Sale Price')
         expect(page).to have_selector('[data-hook="products_row"]', count: 2)
       end
