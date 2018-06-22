@@ -3,7 +3,7 @@
 SpreeSalePrices = {
   handleDatetimePickerFields: function() {
     $('.datetimepicker').datetimepicker({
-      dateFormat: Spree.translations.date_picker,
+      dateFormat: Spree.translations.date_picker.js_format,
       timeFormat: "hh:mm tt",
       dayNames: Spree.translations.abbr_day_names,
       dayNamesMin: Spree.translations.abbr_day_names,
