@@ -35,6 +35,21 @@ describe Spree::SalePrice do
     expect(money.money.currency).to eq(sale_price.currency)
   end
 
+  context 'when the associated price is destroyed' do
+    subject { create(:sale_price) }
+    let(:price) { subject.price }
+
+    before do
+      price.destroy
+      subject.reload
+    end
+
+    it 'still can find the price via price_with_deleted association' do
+      expect(subject.price).to be_nil
+      expect(subject.price_with_deleted).to eql price
+    end
+  end
+
   context 'touching associated product when destroyed' do
     subject { -> { sale_price.reload.destroy } }
     let!(:product) { sale_price.product }
