@@ -7,7 +7,7 @@ module Spree
 
     delegate :currency, :currency=, to: :price, allow_nil: true
 
-    has_one :variant, through: :price
+    has_one :variant, through: :price_with_deleted
     has_one :product, through: :variant
 
     has_one :calculator, class_name: "Spree::Calculator", as: :calculable, dependent: :destroy

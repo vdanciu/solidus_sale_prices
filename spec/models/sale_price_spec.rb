@@ -50,6 +50,20 @@ describe Spree::SalePrice do
     end
   end
 
+  describe '#variant association' do
+    context 'when the price has been soft-deleted' do
+      before do
+        sale = create :sale_price
+        sale.price.destroy
+      end
+
+      it 'preloads the variant via SQL also for soft-deleted records' do
+        records = Spree::SalePrice.with_deleted.includes(:variant)
+        expect(records.first.variant).to be_present
+      end
+    end
+  end
+
   context 'touching associated product when destroyed' do
     subject { -> { sale_price.reload.destroy } }
     let!(:product) { sale_price.product }
