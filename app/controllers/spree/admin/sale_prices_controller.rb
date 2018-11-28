@@ -34,6 +34,10 @@ module Spree
 
       private
 
+      def location_after_destroy
+        admin_product_sale_prices_path(@product)
+      end
+      
       def location_after_save
         admin_product_sale_prices_path(@product)
       end
