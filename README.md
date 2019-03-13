@@ -18,7 +18,7 @@ Installing
 
 In your Gemfile add the following for the latest released version:
 
-    gem 'solidus_sale_prices', github: 'nebulab/solidus-sale-prices'
+    gem 'solidus_sale_prices', github: 'nebulab/solidus_sale_prices'
 
 Install the Gem:
 
