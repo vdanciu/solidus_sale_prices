@@ -25,16 +25,18 @@ Gem::Specification.new do |s|
   s.add_dependency "solidus_api", solidus_version
   s.add_dependency "solidus_backend", solidus_version
   s.add_dependency "solidus_core", solidus_version
-  s.add_dependency 'solidus_support', '~> 0.2'
+  s.add_dependency "solidus_support", '>= 0.3.1'
 
-  s.add_development_dependency 'rspec-rails', '~> 3.1'
   s.add_development_dependency 'capybara', '~> 2.4'
+  s.add_development_dependency 'capybara-screenshot'
   s.add_development_dependency 'database_cleaner', '~> 1.4'
   s.add_development_dependency 'factory_bot', '~> 4.5'
+  s.add_development_dependency 'ffaker'
+  s.add_development_dependency 'pry'
+  s.add_development_dependency 'rspec-rails', '~> 3.1'
+  s.add_development_dependency 'selenium-webdriver', '~> 3.142'
   s.add_development_dependency 'simplecov', '~> 0.9'
   s.add_development_dependency 'sqlite3', '~> 1.3'
   s.add_development_dependency 'timecop', '~> 0.9'
-  s.add_development_dependency 'ffaker'
-  s.add_development_dependency 'poltergeist'
-  s.add_development_dependency 'pry'
+  s.add_development_dependency 'webdrivers'
 end
