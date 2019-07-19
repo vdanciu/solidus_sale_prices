@@ -20,7 +20,6 @@ Spree::BaseHelper.class_eval do
     try(:supported_currencies) || [ _current_currency ]
   end
 
-
   private
 
   def _current_currency
