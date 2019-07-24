@@ -97,12 +97,21 @@ RSpec.feature 'Admin sale prices' do
       scenario 'only certain variants are added if selected' do
         visit spree.admin_product_sale_prices_path(product_id: product.slug)
 
+        find('#sale_price_start_at').click
+        find(".flatpickr-day[aria-label='#{2.day.ago.strftime('%B %e, %Y')}']").click
+
+        find('#sale_price_end_at').click
+        find(".flatpickr-day[aria-label='#{2.day.from_now.strftime('%B %e, %Y')}']").click
+
         fill_in('Sale Price', with: 32.33)
-        fill_in('Sale Start Date', with: '2016/12/11 16:12')
-        fill_in('Sale End Date', with: '2016/12/17 05:35 pm')
-        select(product.master.sku_and_options_text, from: 'Variants', visible: false)
-        select(small.sku_and_options_text, from: 'Variants', visible: false)
-        select(medium.sku_and_options_text, from: 'Variants', visible: false)
+
+        find('.select2-choices').click
+        find('.select2-result-label', exact_text: product.master.sku_and_options_text).click
+        find('.select2-choices').click
+        find('.select2-result-label', exact_text: small.sku_and_options_text).click
+        find('.select2-choices').click
+        find('.select2-result-label', exact_text: medium.sku_and_options_text).click
+
         click_button('Add Sale Price')
         expect(page).to have_selector('[data-hook="products_row"]', count: 3)
       end
@@ -110,11 +119,19 @@ RSpec.feature 'Admin sale prices' do
       scenario 'only non-master variants are added if selected' do
         visit spree.admin_product_sale_prices_path(product_id: product.slug)
 
+        find('#sale_price_start_at').click
+        find(".flatpickr-day[aria-label='#{2.day.ago.strftime('%B %e, %Y')}']").click
+
+        find('#sale_price_end_at').click
+        find(".flatpickr-day[aria-label='#{2.day.from_now.strftime('%B %e, %Y')}']").click
+
         fill_in('Sale Price', with: 32.33)
-        fill_in('Sale Start Date', with: '2016/12/11 16:12')
-        fill_in('Sale End Date', with: '2016/12/17 05:35 pm')
-        select(small.sku_and_options_text, from: 'Variants', visible: false)
-        select(medium.sku_and_options_text, from: 'Variants', visible: false)
+
+        find('.select2-choices').click
+        find('.select2-result-label', exact_text: small.sku_and_options_text).click
+        find('.select2-choices').click
+        find('.select2-result-label', exact_text: medium.sku_and_options_text).click
+
         click_button('Add Sale Price')
         expect(page).to have_selector('[data-hook="products_row"]', count: 2)
       end
@@ -129,6 +146,10 @@ RSpec.feature 'Admin sale prices' do
       medium
     end
 
+    def match_date(date)
+      Regexp.new(Regexp.escape(I18n.l(date, format: :datetimepicker)), 'i')
+    end
+
     scenario 'updates the sale price inplace' do
       visit spree.admin_product_sale_prices_path(product_id: product.slug)
 
@@ -136,12 +157,18 @@ RSpec.feature 'Admin sale prices' do
       expect(page).to have_selector('[data-hook="products_row"]', count: 1)
 
       expect(find_field('Sale Price', with: '54.95')).to be_visible
-      expect(find_field('Sale Start Date', with: I18n.l(1.day.ago, format: :datetimepicker))).to be_visible
-      expect(find_field('Sale End Date', with: I18n.l(1.day.from_now, format: :datetimepicker))).to be_visible
+
+      expect(find_field('Sale Start Date', with: match_date(1.day.ago))).to be_visible
+      expect(find_field('Sale End Date', with: match_date(1.day.from_now))).to be_visible
+
+      find('#sale_price_end_at').click
+      find(".flatpickr-day[aria-label='#{2.day.from_now.strftime('%B %e, %Y')}']").click
+
+      find('#sale_price_start_at').click
+      find(".flatpickr-day[aria-label='#{2.day.ago.strftime('%B %e, %Y')}']").click
 
       fill_in('Sale Price', with: 32.33)
-      fill_in('Sale Start Date', with: I18n.l(2.days.ago, format: :datetimepicker))
-      fill_in('Sale End Date', with: I18n.l(2.days.from_now, format: :datetimepicker))
+
       click_button('Update Sale Price')
 
       expect(page).to have_selector('[data-hook="products_row"]', count: 1)

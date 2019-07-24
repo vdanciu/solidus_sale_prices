@@ -21,7 +21,6 @@ require 'rspec/rails'
 require 'database_cleaner'
 require 'ffaker'
 require 'timecop'
-require 'capybara/poltergeist'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
@@ -33,6 +32,8 @@ require 'spree/testing_support/capybara_ext'
 require 'spree/testing_support/controller_requests'
 require 'spree/testing_support/factories'
 require 'spree/testing_support/url_helpers'
+require 'solidus_support/extension/feature_helper'
+require 'webdrivers'
 
 # Requires factories defined in lib/spree_sale_prices/factories.rb
 require 'solidus_sale_prices/factories'
@@ -89,10 +90,4 @@ RSpec.configure do |config|
 
   config.fail_fast = ENV['FAIL_FAST'] || false
   config.order = "random"
-
-  Capybara.javascript_driver = :poltergeist
-  Capybara.default_max_wait_time = 5
-  Capybara.register_driver :poltergeist do |app|
-    Capybara::Poltergeist::Driver.new(app, timeout: 1.minute, phantomjs_options: ['--load-images=no'])
-  end
 end
