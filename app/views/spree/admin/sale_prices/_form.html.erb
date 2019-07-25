@@ -1,24 +1,24 @@
 <fieldset id="sale_price_form">
   <legend align="center">
     <% if sale_price.new_record? %>
-      <%= Spree.t('add_product_sale_prices') %>
+      <%= t('spree.add_product_sale_prices') %>
     <% else %>
-      <%= Spree.t('update_product_sale_price') %>
+      <%= t('spree.update_product_sale_price') %>
     <% end %>
   </legend>
 
   <%= form_for [:admin, product, sale_price], remote: true do |f| %>
     <div class="row mb-3">
       <div class="col-2">
-        <%= f.label :original_price, Spree.t('original_price') %><br />
+        <%= f.label :original_price, t('spree.original_price') %><br />
         <%= f.text_field :original_price, value: product.original_price, disabled: true %>
       </div>
       <div class="col-2">
-        <%= f.label :value, Spree.t('sale_price_amount') %><br />
+        <%= f.label :value, t('spree.sale_price_amount') %><br />
         <%= f.text_field :value, required: true, type: :number, step: '0.01' %>
       </div>
       <div class="col-2">
-        <%= f.label :currency, Spree.t('sale_price_currency') %><br />
+        <%= f.label :currency, t('spree.sale_price_currency') %><br />
         <%= f.select :currency, options_for_select(supported_currencies_for_sale_price) %>
       </div>
     </div>
@@ -26,7 +26,7 @@
     <% if product.has_variants? %>
       <div class="row mb-3">
         <div class="col-10">
-          <%= label_tag 'variant_ids[]', Spree.t('variants') %><br />
+          <%= label_tag 'variant_ids[]', t('spree.variants') %><br />
           <%= select_tag 'variant_ids[]',
                          options_from_collection_for_select(
                          product.variants_including_master, :id, :sku_and_options_text),
@@ -37,12 +37,12 @@
 
     <div class="row mb-3">
       <div class="col-2">
-        <%= f.label :start_at, Spree.t('sale_price_start_at') %><br />
+        <%= f.label :start_at, t('spree.sale_price_start_at') %><br />
         <%= f.text_field :start_at, class: "datetimepicker",
                                     value: sale_price.start_at.present? ? l(sale_price.start_at, format: :datetimepicker) : "" %>
       </div>
       <div class="col-2">
-        <%= f.label :end_at, Spree.t('sale_price_end_at') %><br />
+        <%= f.label :end_at, t('spree.sale_price_end_at') %><br />
         <%= f.text_field :end_at, class: "datetimepicker",
                                   value: sale_price.end_at.present? ? l(sale_price.end_at, format: :datetimepicker) : "" %>
       </div>
@@ -51,9 +51,9 @@
     <div class="row mb-3">
       <div class="col-3">
         <% if sale_price.new_record? %>
-          <%= f.submit Spree.t('add_sale_button') %>
+          <%= f.submit t('spree.add_sale_button') %>
         <% else %>
-          <%= f.submit Spree.t('update_sale_button') %>
+          <%= f.submit t('spree.update_sale_button') %>
         <% end %>
       </div>
     </div>

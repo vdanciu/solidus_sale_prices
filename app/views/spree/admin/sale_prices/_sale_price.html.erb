@@ -18,7 +18,7 @@
     <%= sale_price.enabled %>
   </td>
   <td class="actions">
-    <%= link_to_with_icon 'edit', Spree.t(:edit),
+    <%= link_to_with_icon 'edit', t('spree.edit'),
                           edit_admin_product_sale_price_url(sale_price.variant.product, sale_price.id),
                           data: { action: 'edit', remote: true },
                           no_text: true %>
