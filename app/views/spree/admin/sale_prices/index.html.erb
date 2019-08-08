@@ -1,9 +1,5 @@
-<%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => "Product Sale Prices"} %>
+<%= render 'spree/admin/shared/product_tabs', current: 'Sale Prices' %>
+<% admin_breadcrumb(plural_resource_name(Spree::SalePrice)) %>
 
-<div id="add-line-item">
-  <%= render 'form', product: @product, sale_price: Spree::SalePrice.new %>
-</div>
-
-<div id="product-sale-prices-table">
-  <%= render partial: "table", locals: { sale_prices: @sale_prices } %>
-</div>
+<%= render 'table', sale_prices: @sale_prices %>
+<%= render 'prices_table', prices: @product.prices %>
