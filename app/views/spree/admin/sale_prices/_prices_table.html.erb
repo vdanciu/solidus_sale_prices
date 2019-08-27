@@ -1,0 +1,37 @@
+<div class="index" id="listing_current_prices" data-hook="current_prices">
+  <%= form_for :sale_price, url: new_admin_product_sale_price_url(@product), method: :get do |f| %>
+    <fieldset>
+      <legend align="center"><%= plural_resource_name(Spree::Price) %></legend>
+      <table class="index prices table-hover">
+        <thead data-hook="prices_header">
+          <tr>
+            <th></th>
+            <th><%= Spree::Variant.model_name.human %> </th>
+            <th><%= Spree::Price.human_attribute_name(:country) %></th>
+            <th><%= Spree::Price.human_attribute_name(:currency) %></th>
+            <th><%= Spree::Price.human_attribute_name(:amount) %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% prices.each do |price| %>
+            <tr id="<%= spree_dom_id price %>" data-hook="prices_row" class="<%= "deleted" if price.deleted? %>">
+              <td><%= check_box_tag 'price_ids[]', price.id %></td>
+              <td><%= price.variant.descriptive_name %></td>
+              <td><%= price.display_country %></td>
+              <td><%= price.currency %></td>
+              <td><%= price.money.to_html %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <% if can?(:update, Spree::Price) %>
+        <div class="actions filter-actions form-buttons">
+          <div data-hook="admin_orders_index_search_buttons">
+            <%= button_tag t('spree.new_sale_price'), class: 'btn btn-primary' %>
+          </div>
+        </div>
+      <% end %>
+    </fieldset>
+  <% end %>
+</div>

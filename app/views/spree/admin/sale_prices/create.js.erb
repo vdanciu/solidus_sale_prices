@@ -1,3 +1,0 @@
-$('#sale_price_form').replaceWith('<%=j render("form", product: @product, sale_price: Spree::SalePrice.new) %>');
-$('table#product_sale_prices tbody').html('<%=j render(partial: "sale_price", collection: @sale_prices) %>');
-SpreeSalePrices.init();

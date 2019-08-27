@@ -3,182 +3,102 @@ require 'spec_helper'
 RSpec.feature 'Admin sale prices' do
   stub_authorization!
 
-  let(:product) { create(:product) }
-  let(:small) do
-    create(:variant, product: product,
-                     option_values: [create(:option_value, presentation: 'S')])
-  end
-  let(:medium) do
-    create(:variant, product: product,
-                     option_values: [create(:option_value, presentation: 'M')])
-  end
-  let(:large) do
-    create(:variant, product: product,
-                     option_values: [create(:option_value, presentation: 'L')])
-  end
+  let(:country) { create(:country, iso: 'IT') }
+  let(:price) { create(:price, country: country, currency: 'EUR') }
+  let(:variant) { create(:variant, prices: [price]) }
+  let!(:sale_price) { create(:sale_price, price: price) }
 
-  context 'when listing sale prices' do
-    before { product.put_on_sale(20.25, start_at: 1.hour.from_now) }
-
-    scenario 'with the master variant the product sale is shown' do
-      visit spree.admin_product_sale_prices_path(product_id: product.slug)
-
-      expect(page).to have_selector('[data-hook="products_row"]', count: 1)
-      expect(page).not_to have_selector('.variant_sales_picker')
-
-      within('[data-hook="products_row"]:first') do
-        expect(page).to have_content(product.sku)
-      end
+  context 'when listed' do
+    let!(:expired_sale_price) do
+      create(:sale_price, price: variant.prices.first, end_at: 1.day.ago)
+    end
+    let!(:scheduled_sale_price) do
+      create(:sale_price, price: variant.prices.first, start_at: 1.day.from_now)
     end
 
-    context 'with multiple variants' do
-      before do
-        small.put_on_sale(10.95, start_at: 5.days.from_now)
-        medium.put_on_sale(11.95, start_at: 10.days.from_now)
-        large.put_on_sale(32.21, start_at: 2.hours.from_now)
+    scenario 'are shown along with variant prices' do
+      visit spree.admin_product_sale_prices_path(product_id: variant.product.slug)
+
+      within('[data-hook="current_prices"] [data-hook="prices_row"]:first') do
+        expect(page).to have_content(variant.product.master.descriptive_name)
+        expect(page).to have_content(variant.product.master.price)
       end
 
-      scenario 'a list of variant sale prices is shown and sorted by start_at' do
-        visit spree.admin_product_sale_prices_path(product_id: product.slug)
+      within('[data-hook="current_prices"] [data-hook="prices_row"]:last') do
+        expect(page).to have_content(variant.descriptive_name)
+        expect(page).to have_content(variant.price)
+      end
 
-        expect(page).to have_selector('[data-hook="products_row"]', count: 4)
+      within all('[data-hook="sale_prices"] [data-hook="prices_row"]').first do
+        expect(page).to have_content(sale_price.variant.descriptive_name)
+        expect(page).to have_content(sale_price.display_price)
+        expect(page).to have_content(I18n.t('spree.sale_price_active'))
+      end
 
-        within('[data-hook="products_row"]:first') do
-          expect(page).to have_content(product.sku)
-        end
+      within all('[data-hook="sale_prices"] [data-hook="prices_row"]')[1] do
+        expect(page).to have_content(sale_price.variant.descriptive_name)
+        expect(page).to have_content(sale_price.display_price)
+        expect(page).to have_content(I18n.t('spree.sale_price_expired'))
+      end
 
-        within('[data-hook="products_row"]:nth-child(2)') do
-          expect(page).to have_content(large.sku)
-        end
-
-        within('[data-hook="products_row"]:nth-child(3)') do
-          expect(page).to have_content(small.sku)
-        end
-
-        within('[data-hook="products_row"]:last') do
-          expect(page).to have_content(medium.sku)
-        end
+      within all('[data-hook="sale_prices"] [data-hook="prices_row"]').last do
+        expect(page).to have_content(sale_price.variant.descriptive_name)
+        expect(page).to have_content(sale_price.display_price)
+        expect(page).to have_content(I18n.t('spree.sale_price_scheduled'))
       end
     end
   end
 
-  context 'when adding sale prices', js: true do
-    scenario 'a new sale price is added to the list' do
-      visit spree.admin_product_sale_prices_path(product_id: product.slug)
-
-      fill_in('Sale Price', with: 32.33)
-      fill_in('Sale Start Date', with: '2016/12/11 16:12')
-      fill_in('Sale End Date', with: '2016/12/17 05:35 pm')
-      click_button('Add Sale Price')
-
-      within('[data-hook="products_row"]') do
-        expect(page).to have_content(product.sku)
-        expect(page).to have_content(32.33)
-
-        within('.start-date') { expect(page).to have_content('December 11, 2016 4:12 PM') }
-        within('.end-date') { expect(page).to have_content('December 17, 2016 5:35 PM') }
-      end
-    end
-
-    context 'with multiple variants' do
-      before { small; medium; large }
-
-      scenario 'a new sale price is added to the list' do
-        visit spree.admin_product_sale_prices_path(product_id: product.slug)
-
-        fill_in('Sale Price', with: 32.33)
-        fill_in('Sale Start Date', with: '2016/12/11 16:12')
-        fill_in('Sale End Date', with: '2016/12/17 05:35 pm')
-        click_button('Add Sale Price')
-
-        expect(page).to have_selector('[data-hook="products_row"]', count: 4)
-      end
-
-      scenario 'only certain variants are added if selected' do
-        visit spree.admin_product_sale_prices_path(product_id: product.slug)
-
-        find('#sale_price_start_at').click
-        find(".flatpickr-day[aria-label='#{2.day.ago.strftime('%B %e, %Y')}']").click
-
-        find('#sale_price_end_at').click
-        find(".flatpickr-day[aria-label='#{2.day.from_now.strftime('%B %e, %Y')}']").click
-
-        fill_in('Sale Price', with: 32.33)
-
-        find('.select2-choices').click
-        find('.select2-result-label', exact_text: product.master.sku_and_options_text).click
-        find('.select2-choices').click
-        find('.select2-result-label', exact_text: small.sku_and_options_text).click
-        find('.select2-choices').click
-        find('.select2-result-label', exact_text: medium.sku_and_options_text).click
-
-        click_button('Add Sale Price')
-        expect(page).to have_selector('[data-hook="products_row"]', count: 3)
-      end
-
-      scenario 'only non-master variants are added if selected' do
-        visit spree.admin_product_sale_prices_path(product_id: product.slug)
-
-        find('#sale_price_start_at').click
-        find(".flatpickr-day[aria-label='#{2.day.ago.strftime('%B %e, %Y')}']").click
-
-        find('#sale_price_end_at').click
-        find(".flatpickr-day[aria-label='#{2.day.from_now.strftime('%B %e, %Y')}']").click
-
-        fill_in('Sale Price', with: 32.33)
-
-        find('.select2-choices').click
-        find('.select2-result-label', exact_text: small.sku_and_options_text).click
-        find('.select2-choices').click
-        find('.select2-result-label', exact_text: medium.sku_and_options_text).click
-
-        click_button('Add Sale Price')
-        expect(page).to have_selector('[data-hook="products_row"]', count: 2)
-      end
-    end
-  end
-
-  context 'when editing sale prices', js: true do
+  context 'when adding new ones' do
     around { |example| Timecop.freeze { example.run } }
 
-    before do
-      small.put_on_sale(54.95, start_at: 1.day.ago, end_at: 1.day.from_now)
-      medium
+    let(:start_at) { 2.days.ago }
+    let(:end_at) { 2.days.from_now }
+
+    scenario 'cannot be added when no price is selected' do
+      visit spree.new_admin_product_sale_price_path(product_id: variant.product.slug)
+
+      expect(page).to have_selector('.flash.error', text: I18n.t('spree.put_on_sale_requires_prices'))
     end
 
-    def match_date(date)
-      Regexp.new(Regexp.escape(I18n.l(date, format: :datetimepicker)), 'i')
-    end
+    scenario 'can be added', js: true do
+      visit spree.admin_product_sale_prices_path(product_id: variant.product.slug)
 
-    scenario 'updates the sale price inplace' do
-      visit spree.admin_product_sale_prices_path(product_id: product.slug)
-
-      find('[data-action="edit"]').click
-      expect(page).to have_selector('[data-hook="products_row"]', count: 1)
-
-      expect(find_field('Sale Price', with: '54.95')).to be_visible
-
-      expect(find_field('Sale Start Date', with: match_date(1.day.ago))).to be_visible
-      expect(find_field('Sale End Date', with: match_date(1.day.from_now))).to be_visible
-
-      find('#sale_price_end_at').click
-      find(".flatpickr-day[aria-label='#{2.day.from_now.strftime('%B %e, %Y')}']").click
+      find("[data-hook='current_prices'] #spree_price_#{variant.prices.first.id}").click
+      click_button('New Sale Price')
 
       find('#sale_price_start_at').click
-      find(".flatpickr-day[aria-label='#{2.day.ago.strftime('%B %e, %Y')}']").click
+      find(".flatpickr-day[aria-label='#{start_at.strftime('%B %-d, %Y')}']").click
+      find('.flatpickr-hour').set(20)
+      find('.flatpickr-minute').set(22)
 
-      fill_in('Sale Price', with: 32.33)
+      find('#sale_price_end_at').click
+      find(".flatpickr-day[aria-label='#{end_at.strftime('%B %-d, %Y')}']").click
+      find('.flatpickr-hour').set(10)
+      find('.flatpickr-minute').set(32)
 
-      click_button('Update Sale Price')
+      fill_in('sale_price_value', with: 32.33)
 
-      expect(page).to have_selector('[data-hook="products_row"]', count: 1)
-      within('[data-hook="products_row"]') do
-        expect(page).to have_content(small.sku)
-        expect(page).to have_content('32.33')
+      click_button('Create')
 
-        within('.start-date') { expect(page).to have_content(pretty_time(2.days.ago)) }
-        within('.end-date') { expect(page).to have_content(pretty_time(2.days.from_now)) }
+      within all('[data-hook="sale_prices"] [data-hook="prices_row"]').last do
+        expect(page).to have_content(variant.descriptive_name)
+        expect(page).to have_content(32.33)
+        expect(page).to have_content(country.name)
+        expect(page).to have_content(variant.prices.last.currency)
+        expect(page).to have_content(start_at.strftime('%B %d, %Y'))
+        expect(page).to have_content(end_at.strftime('%B %d, %Y'))
       end
+    end
+  end
+
+  scenario 'can be destroyed', js: true do
+    visit spree.admin_product_sale_prices_path(product_id: variant.product.slug)
+
+    within('[data-hook="sale_prices"]') do
+      expect(page).to have_selector('[data-hook="prices_row"]', count: 1)
+      accept_alert { find('.delete-resource').click }
+      expect(page).to have_selector('[data-hook="prices_row"]', count: 0)
     end
   end
 end

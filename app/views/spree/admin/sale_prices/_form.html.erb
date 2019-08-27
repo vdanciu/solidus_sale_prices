@@ -1,61 +1,44 @@
-<fieldset id="sale_price_form">
-  <legend align="center">
-    <% if sale_price.new_record? %>
-      <%= t('spree.add_product_sale_prices') %>
-    <% else %>
-      <%= t('spree.update_product_sale_price') %>
+<div class="row">
+  <div data-hook="admin_sale_price_form_amount" class="col-3">
+    <%= f.field_container :price do %>
+      <%= f.label :price %>
+      <%= f.text_field :value, class: 'fullwidth', required: true %>
     <% end %>
-  </legend>
+  </div>
 
-  <%= form_for [:admin, product, sale_price], remote: true do |f| %>
-    <div class="row mb-3">
-      <div class="col-2">
-        <%= f.label :original_price, t('spree.original_price') %><br />
-        <%= f.text_field :original_price, value: product.original_price, disabled: true %>
-      </div>
-      <div class="col-2">
-        <%= f.label :value, t('spree.sale_price_amount') %><br />
-        <%= f.text_field :value, required: true, type: :number, step: '0.01' %>
-      </div>
-      <div class="col-2">
-        <%= f.label :currency, t('spree.sale_price_currency') %><br />
-        <%= f.select :currency, options_for_select(supported_currencies_for_sale_price) %>
-      </div>
-    </div>
+  <div data-hook="admin_product_price_start_at" class="col-3">
+    <%= f.field_container :start_at do %>
+      <%= f.label :start_at, Spree::SalePrice.human_attribute_name(:start_at) %><br />
 
-    <% if product.has_variants? %>
-      <div class="row mb-3">
-        <div class="col-10">
-          <%= label_tag 'variant_ids[]', t('spree.variants') %><br />
-          <%= select_tag 'variant_ids[]',
-                         options_from_collection_for_select(
-                         product.variants_including_master, :id, :sku_and_options_text),
-                         multiple: true, class: 'variant_sales_picker' %>
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">
+            <%= solidus_icon('fa fa-calendar') %>
+          </span>
         </div>
+        <%= f.text_field :start_at, class: "datetimepicker",
+                                    value: f.object.start_at.present? ? l(f.object.start_at, format: :datetimepicker) : "" %>
       </div>
     <% end %>
+  </div>
 
-    <div class="row mb-3">
-      <div class="col-2">
-        <%= f.label :start_at, t('spree.sale_price_start_at') %><br />
-        <%= f.text_field :start_at, class: "datetimepicker",
-                                    value: sale_price.start_at.present? ? l(sale_price.start_at, format: :datetimepicker) : "" %>
-      </div>
-      <div class="col-2">
-        <%= f.label :end_at, t('spree.sale_price_end_at') %><br />
+  <div data-hook="admin_product_price_end_at" class="col-3">
+    <%= f.field_container :end_at do %>
+      <%= f.label :end_at, Spree::SalePrice.human_attribute_name(:end_at) %><br />
+
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">
+            <%= solidus_icon('fa fa-calendar') %>
+          </span>
+        </div>
         <%= f.text_field :end_at, class: "datetimepicker",
-                                  value: sale_price.end_at.present? ? l(sale_price.end_at, format: :datetimepicker) : "" %>
+                                  value: f.object.end_at.present? ? l(f.object.end_at, format: :datetimepicker) : "" %>
       </div>
-    </div>
+    <% end %>
+  </div>
 
-    <div class="row mb-3">
-      <div class="col-3">
-        <% if sale_price.new_record? %>
-          <%= f.submit t('spree.add_sale_button') %>
-        <% else %>
-          <%= f.submit t('spree.update_sale_button') %>
-        <% end %>
-      </div>
-    </div>
+  <% params[:price_ids].each do |id| %>
+    <%= hidden_field_tag "price_ids[]", id %>
   <% end %>
-</fieldset>
+</div>
