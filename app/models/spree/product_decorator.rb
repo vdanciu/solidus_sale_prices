@@ -1,6 +1,7 @@
-Spree::Product.class_eval do
-
-  has_many :sale_prices, through: :prices
+module Spree::ProductDecorator
+  def self.prepended(base)
+    base.has_many :sale_prices, through: :prices
+  end
 
   # Essentially all read values here are delegated to reading the value on the Master variant
   # All write values will write to all variants (including the Master) unless that method's all_variants parameter is
@@ -63,4 +64,5 @@ Spree::Product.class_eval do
       end
     end
 
+  Spree::Product.prepend self
 end

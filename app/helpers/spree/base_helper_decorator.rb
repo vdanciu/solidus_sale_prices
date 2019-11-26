@@ -1,4 +1,4 @@
-Spree::BaseHelper.class_eval do
+module Spree::BaseHelperDecorator
   def display_original_price(product_or_variant)
     product_or_variant.original_price_in(_current_currency).display_price.to_html
   end
@@ -25,4 +25,6 @@ Spree::BaseHelper.class_eval do
   def _current_currency
     try(:current_currency) || Spree::Config[:currency] || 'USD'
   end
+  
+  Spree::BaseHelper.prepend self
 end
