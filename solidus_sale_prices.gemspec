@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'factory_bot', '~> 4.5'
   s.add_development_dependency 'ffaker'
   s.add_development_dependency 'pry-rails'
+  s.add_development_dependency 'pry-byebug'
   s.add_development_dependency 'rspec-rails', '~> 3.1'
   s.add_development_dependency 'selenium-webdriver', '~> 3.142'
   s.add_development_dependency 'simplecov', '~> 0.9'
