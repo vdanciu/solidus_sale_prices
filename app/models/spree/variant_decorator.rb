@@ -1,6 +1,7 @@
-Spree::Variant.class_eval do
-
-  has_many :sale_prices, through: :prices
+module Spree::VariantDecorator
+  def self.prepended(base)
+    base.has_many :sale_prices, through: :prices
+  end
 
   delegate :on_sale?,
            :sale_price, :sale_price=,
@@ -72,4 +73,5 @@ Spree::Variant.class_eval do
       end
     end
 
+  Spree::Variant.prepend self
 end
