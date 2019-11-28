@@ -1,52 +1,79 @@
 require 'spec_helper'
 
 describe Spree::SalePrice do
+  describe '#start' do
+    let(:sale_price) { build(:sale_price) }
 
-  it 'can start and end never' do
-    sale_price = build(:sale_price)
-    sale_price.start
+    context 'when it starts without an end time' do
+      before { sale_price.start }
 
-    expect(sale_price).to be_enabled
-    expect(sale_price.end_at).to be(nil)
-  end
+      it 'enables the sale price' do
+        expect(sale_price).to be_enabled
+      end
 
-  it 'can start and then end at a specific time' do
-    sale_price = build(:sale_price)
-    sale_price.start(1.day.from_now)
-
-    expect(sale_price).to be_enabled
-    expect(sale_price.end_at).to be_within(1.second).of(1.day.from_now)
-  end
-
-  it 'can stop' do
-    sale_price = build(:active_sale_price)
-    sale_price.stop
-
-    expect(sale_price).not_to be_enabled
-    expect(sale_price.end_at).to be_within(1.second).of(Time.now)
-  end
-
-  it 'can create a money price ready to display' do
-    sale_price = build(:active_sale_price)
-    money = sale_price.display_price
-
-    expect(money).to be_a Spree::Money
-    expect(money.money.amount.to_f).to be_within(0.1).of(sale_price.calculated_price.to_f)
-    expect(money.money.currency).to eq(sale_price.currency)
-  end
-
-  context 'when the associated price is destroyed' do
-    subject { create(:sale_price) }
-    let(:price) { subject.price }
-
-    before do
-      price.destroy
-      subject.reload
+      it 'unsets the end time' do
+        expect(sale_price.end_at).to be_nil
+      end
     end
 
-    it 'still can find the price via price_with_deleted association' do
-      expect(subject.price).to be_nil
-      expect(subject.price_with_deleted).to eql price
+    context 'when it starts with an end time' do
+      before { sale_price.start(1.day.from_now) }
+
+      it 'enables the sale price' do
+        expect(sale_price).to be_enabled
+      end
+
+      it 'sets the end time' do
+        expect(sale_price.end_at).to be_within(1.second).of(1.day.from_now)
+      end
+    end
+  end
+
+  describe '#stop' do
+    let(:sale_price) { build(:active_sale_price) }
+
+    before { sale_price.stop }
+
+    it 'disables the sale price' do
+      expect(sale_price).not_to be_enabled
+    end
+
+    it 'sets the end time' do
+      expect(sale_price.end_at).to be_within(1.second).of(Time.now)
+    end
+  end
+
+  describe '#display_price' do
+    let(:sale_price) { build(:active_sale_price) }
+    subject(:display_price) { sale_price.display_price }
+
+    it 'is expected to be an instance of Spree::Money' do
+      expect(display_price).to be_a Spree::Money
+    end
+
+    it 'is expected to be similar to the calculated price' do
+      expect(display_price.money.amount.to_f).to be_within(0.1).of(sale_price.calculated_price.to_f)
+    end
+
+    it 'is expected to have the same currency of sale price' do
+      expect(display_price.money.currency).to eq(sale_price.currency)
+    end
+  end
+
+  describe '#price_with_deleted' do
+    context 'when the associated price is destroyed' do
+      let(:sale_price) { create(:sale_price) }
+      let(:price) { sale_price.price }
+
+      before do
+        price.destroy
+        sale_price.reload
+      end
+
+      it 'still can find the price via price_with_deleted association' do
+        expect(sale_price.price).to be_nil
+        expect(sale_price.price_with_deleted).to eql price
+      end
     end
   end
 
