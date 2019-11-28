@@ -7,6 +7,7 @@ require File.expand_path('dummy/config/environment.rb', __dir__)
 
 require 'timecop'
 require 'solidus_support/extension/feature_helper'
+require 'pry-byebug'
 
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
