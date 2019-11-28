@@ -71,6 +71,7 @@ module Spree::VariantDecorator
       else
         prices.each { |p| block.call p }
       end
+      default_price.reload
     end
 
   Spree::Variant.prepend self

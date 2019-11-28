@@ -1,66 +1,118 @@
 require 'spec_helper'
 
 describe Spree::Price do
+  let(:price) { create(:price, amount: price_amount) }
+  let(:price_amount) { 19.99 }
 
-  it 'can build a new sale by factory' do
-    price = build(:price)
-    sale_price = price.new_sale(15.99)
+  describe '#new_sale' do
+    subject { price.new_sale(sale_price_value) }
 
-    expect(price.on_sale?).to be false
-    expect(price.price).to eql BigDecimal.new(19.99, 4)
+    let(:sale_price_value) { 15.99 }
 
-    expect(sale_price).to have_attributes({
-      value: BigDecimal.new(15.99, 4),
-      start_at: be_within(1.second).of(Time.now),
-      end_at: nil,
-      enabled: true,
-      calculator: an_instance_of(Spree::Calculator::FixedAmountSalePriceCalculator)
-    })
-  end
-
-  it 'can put a price on a fixed sale' do
-    price = create(:price)
-    price.put_on_sale 15.95
-
-    expect(price.on_sale?).to be true
-    expect(price.price).to eql BigDecimal.new(15.95, 4)
-    expect(price.original_price).to eql(19.99)
-  end
-
-  it 'can put a price on a percent-off sale' do
-    price = create(:price)
-    price.put_on_sale 0.2, { calculator_type: Spree::Calculator::PercentOffSalePriceCalculator.new }
-
-    expect(price.on_sale?).to be true
-    expect(price.price).to be_within(0.01).of(15.99)
-    expect(price.original_price).to eql(19.99)
-  end
-
-  context 'calculating discount percentage' do
-    it 'returns 0 if there\'s no original price' do
-      price = create(:price)
-      price.amount = BigDecimal(0)
-      expect(price.discount_percent.to_f).to eql 0.0
-    end
-
-    it 'returns 0 if it\'s not on sale' do
-      price = create(:price)
-      expect(price.discount_percent.to_f).to eql 0.0
-    end
-
-    it 'returns correct percentage value' do
-      price = create(:price)
-      price.put_on_sale(15.00)
-      expect(price.discount_percent.to_f).to be_within(0.1).of(25)
+    it 'builds a new sale' do
+      is_expected.to have_attributes({
+        value: BigDecimal.new(sale_price_value, 4),
+        start_at: be_within(1.second).of(Time.now),
+        end_at: nil,
+        enabled: true,
+        calculator: an_instance_of(Spree::Calculator::FixedAmountSalePriceCalculator)
+      })
     end
   end
 
-  it 'destroys all sale prices when it is destroyed' do
-    price = create(:price)
-    price.put_on_sale 10
+  describe '#put_on_sale' do
+    subject(:put_on_sale) { price.put_on_sale sale_price_value, options }
 
-    expect { price.destroy }
-      .to change { Spree::SalePrice.all.size }
-      .from(1).to(0)
+    context 'when the sale price calculator is not passed as argument' do
+      let(:sale_price_value) { 15.95 }
+      let(:options) { {} }
+
+      it 'puts the price on sale' do
+        expect { put_on_sale }.to change { price.reload.on_sale? }.from(false).to(true)
+      end
+
+      it "updates the price's price" do
+        expect { put_on_sale }.to change { price.reload.price }.from(price_amount).to(BigDecimal.new(sale_price_value, 4))
+      end
+
+      it "sets original_price" do
+        put_on_sale
+
+        expect(price.original_price).to eq price_amount
+      end
+    end
+
+    context 'when the sale price calculator passed as argument is percent off' do
+      let(:sale_price_value) { 0.2 }
+      let(:options) { { calculator_type: Spree::Calculator::PercentOffSalePriceCalculator.new } }
+
+      it 'puts the price on sale' do
+        expect { put_on_sale }.to change { price.reload.on_sale? }.from(false).to(true)
+      end
+
+      it "updates the price's price" do
+        expect { put_on_sale }.to change { price.reload.price }.from(price_amount).to(be_within(0.01).of(15.99))
+      end
+
+      it "sets original_price" do
+        put_on_sale
+
+        expect(price.original_price).to eq price_amount
+      end
+    end
+  end
+
+  describe '#discount_percent' do
+    subject { price.discount_percent.to_f }
+
+    context 'when there is no original price' do
+      before { price.amount = BigDecimal(0) }
+
+      it { is_expected.to be_zero }
+    end
+
+    context 'when it is not on sale' do
+      it { is_expected.to be_zero }
+    end
+
+    context 'when it is on sale' do
+      before { price.put_on_sale(15.00) }
+
+      it 'returns correct percentage value' do
+        is_expected.to be_within(0.1).of(25)
+      end
+    end
+  end
+
+  describe '#destroy' do
+    context 'when there are sale prices associated to the price' do
+      before { price.put_on_sale 10 }
+
+      it 'destroys all sale prices when it is destroyed' do
+        expect { price.destroy }
+          .to change { Spree::SalePrice.all.size }
+          .from(1).to(0)
+      end
+    end
+  end
+
+  describe 'on_sale?' do
+    subject { price.on_sale? }
+
+    context 'when there are no active sales' do
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when there is one active sale but its value is equal to the original price' do
+      before { price.put_on_sale price_amount }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when there is one active sale and its value is less than the original price' do
+      before { price.put_on_sale price_amount - 0.01 }
+
+      it { is_expected.to be_truthy }
+    end
   end
 end

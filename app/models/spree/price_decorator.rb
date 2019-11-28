@@ -1,6 +1,7 @@
 module Spree::PriceDecorator
   def self.prepended(base)
     base.has_many :sale_prices, dependent: :destroy
+    base.has_many :active_sale_prices, -> { merge(Spree::SalePrice.active) }, class_name: 'Spree::SalePrice'
   end
 
   def put_on_sale(value, params = {})
@@ -21,7 +22,7 @@ module Spree::PriceDecorator
   # TODO make update_sale method
 
   def active_sale
-    first_sale(sale_prices.active) if on_sale?
+    first_sale(active_sale_prices) if on_sale?
   end
   alias :current_sale :active_sale
 
@@ -49,7 +50,9 @@ module Spree::PriceDecorator
   end
 
   def on_sale?
-    sale_prices.active.present? && first_sale(sale_prices.active).value < original_price
+    return false unless (first_active_sale_value = first_sale(active_sale_prices)&.value)
+
+    first_active_sale_value < original_price
   end
 
   def original_price
