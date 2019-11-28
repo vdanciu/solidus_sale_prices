@@ -115,4 +115,19 @@ describe Spree::Price do
       it { is_expected.to be_truthy }
     end
   end
+
+  describe '#recalculate_sale_prices' do
+    before do
+      price.put_on_sale 0.1, calculator_type: Spree::Calculator::PercentOffSalePriceCalculator.new
+      price.put_on_sale 0.2, calculator_type: Spree::Calculator::PercentOffSalePriceCalculator.new
+    end
+
+    context 'when the price amount changes' do
+      before { price.update! amount: 100 }
+
+      it 'updates calculated sale prices' do
+        expect(price.sale_prices.pluck(:calculated_price)).to contain_exactly 90, 80
+      end
+    end
+  end
 end

@@ -14,6 +14,8 @@ module Spree
     validates :calculator, :price, presence: true
     accepts_nested_attributes_for :calculator
 
+    before_save :compute_calculated_price
+
     scope :ordered, -> { order('start_at IS NOT NULL, start_at ASC') }
     scope :active, -> { where(enabled: true).where('(start_at <= ? OR start_at IS NULL) AND (end_at >= ? OR end_at IS NULL)', Time.now, Time.now) }
 
@@ -29,10 +31,6 @@ module Spree
 
     def calculator_type
       calculator.class.to_s if calculator
-    end
-
-    def calculated_price
-      calculator.compute self
     end
 
     def enable
@@ -61,6 +59,16 @@ module Spree
     # Convenience method for displaying the price of a given sale_price in the table
     def display_price
       Spree::Money.new(value || 0, { currency: price.currency })
+    end
+
+    def update_calculated_price!
+      save!
+    end
+
+    private
+
+    def compute_calculated_price
+      self.calculated_price = calculator.compute self
     end
   end
 end

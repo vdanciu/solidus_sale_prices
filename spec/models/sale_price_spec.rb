@@ -44,7 +44,7 @@ describe Spree::SalePrice do
   end
 
   describe '#display_price' do
-    let(:sale_price) { build(:active_sale_price) }
+    let(:sale_price) { create(:active_sale_price) }
     subject(:display_price) { sale_price.display_price }
 
     it 'is expected to be an instance of Spree::Money' do
