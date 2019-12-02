@@ -56,9 +56,9 @@ module Spree::PriceDecorator
   end
 
   def on_sale?
-    return false unless (first_active_sale_value = first_sale(active_sale_prices)&.value)
+    return false unless (first_active_sale_calculated_price = first_sale(active_sale_prices)&.calculated_price)
 
-    first_active_sale_value < original_price
+    first_active_sale_calculated_price < original_price
   end
 
   def original_price

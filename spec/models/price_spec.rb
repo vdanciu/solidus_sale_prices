@@ -103,13 +103,22 @@ describe Spree::Price do
       it { is_expected.to be_falsey }
     end
 
-    context 'when there is one active sale but its value is equal to the original price' do
+    context 'when there is one active sale but its calculated price is equal to the original price' do
       before { price.put_on_sale price_amount }
 
       it { is_expected.to be_falsey }
     end
 
-    context 'when there is one active sale and its value is less than the original price' do
+    context 'when there is one active sale and its calculated price is less than the original price' \
+            'but its value is greater than the original price' do
+      let(:price_amount) { 0.09 }
+
+      before { price.put_on_sale 0.1, calculator_type: Spree::Calculator::PercentOffSalePriceCalculator.new }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when there is one active sale and its calculated price is less than the original price' do
       before { price.put_on_sale price_amount - 0.01 }
 
       it { is_expected.to be_truthy }
