@@ -2,6 +2,12 @@ module Spree::PriceDecorator
   def self.prepended(base)
     base.has_many :sale_prices, dependent: :destroy
     base.has_many :active_sale_prices, -> { merge(Spree::SalePrice.active) }, class_name: 'Spree::SalePrice'
+    base.after_save :update_calculated_sale_prices
+  end
+
+  def update_calculated_sale_prices
+    reload
+    sale_prices.each(&:update_calculated_price!)
   end
 
   def put_on_sale(value, params = {})
