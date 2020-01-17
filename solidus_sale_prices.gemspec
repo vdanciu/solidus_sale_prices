@@ -1,42 +1,42 @@
-# encoding: UTF-8
+# frozen_string_literal: true
+
+$:.push File.expand_path('lib', __dir__)
+require 'solidus_sale_prices/version'
 
 Gem::Specification.new do |s|
-  s.platform    = Gem::Platform::RUBY
-  s.name        = 'solidus_sale_prices'
-  s.version     = '1.4.0'
-  s.summary     = 'Adds sale pricing functionality to Solidus'
+  s.name = 'solidus_sale_prices'
+  s.version = SolidusSalePrices::VERSION
+  s.summary = 'Adds sale pricing functionality to Solidus.'
   s.description = 'Adds sale pricing functionality to Solidus. It enables timed sale planning for different currencies.'
-  s.required_ruby_version = '>= 1.9.3'
+  s.license  = 'BSD-3-Clause'
 
-  s.author   = 'Renuo GmbH, Jonathan Dean, Nebulab'
-  s.email    = 'info@nebulab.it'
-  s.homepage = 'https://github.com/nebulab/spree_sale_prices'
-  s.license  = 'BSD-3'
+  s.author = 'Renuo GmbH, Jonathan Dean, Nebulab'
+  s.email = 'info@nebulab.it'
+  s.homepage = 'https://github.com/solidusio-contrib/solidus_sale_prices'
 
-  # s.files       = `git ls-files`.split("\n")
-  # s.test_files  = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.require_path = 'lib'
-  s.requirements << 'none'
+  if s.respond_to?(:metadata)
+    s.metadata["homepage_uri"] = s.homepage if s.homepage
+    s.metadata["source_code_uri"] = s.homepage if s.homepage
+  end
+
+  s.required_ruby_version = '~> 2.4'
+
+  s.files = Dir.chdir(File.expand_path(__dir__)) do
+    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  end
+  s.test_files = Dir['spec/**/*']
+  s.bindir = "exe"
+  s.executables = s.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  s.require_paths = ["lib"]
 
   solidus_version = [">= 1.0", "< 3"]
 
-  s.add_runtime_dependency 'deface', '~> 1.0'
+  s.add_dependency 'deface', '~> 1.0'
+  s.add_dependency 'solidus_api', solidus_version
+  s.add_dependency 'solidus_backend', solidus_version
+  s.add_dependency 'solidus_core', solidus_version
+  s.add_dependency 'solidus_support', '~> 0.4.0'
 
-  s.add_dependency "solidus_api", solidus_version
-  s.add_dependency "solidus_backend", solidus_version
-  s.add_dependency "solidus_core", solidus_version
-  s.add_dependency "solidus_support", '>= 0.3.1'
-
-  s.add_development_dependency 'capybara', '~> 2.4'
-  s.add_development_dependency 'capybara-screenshot'
-  s.add_development_dependency 'database_cleaner', '~> 1.4'
-  s.add_development_dependency 'factory_bot', '~> 4.5'
-  s.add_development_dependency 'ffaker'
-  s.add_development_dependency 'pry-rails'
-  s.add_development_dependency 'pry-byebug'
-  s.add_development_dependency 'rspec-rails', '~> 3.1'
-  s.add_development_dependency 'selenium-webdriver', '~> 3.142'
-  s.add_development_dependency 'simplecov', '~> 0.9'
-  s.add_development_dependency 'sqlite3', '~> 1.3'
   s.add_development_dependency 'timecop', '~> 0.9'
+  s.add_development_dependency 'solidus_dev_support'
 end
