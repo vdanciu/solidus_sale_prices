@@ -1,20 +1,18 @@
+# frozen_string_literal: true
+
+require 'spree/core'
+
 module SolidusSalePrices
   class Engine < Rails::Engine
-    engine_name 'solidus_sale_prices'
+    include SolidusSupport::EngineExtensions::Decorators
 
-    config.autoload_paths += %W(#{config.root}/lib)
+    isolate_namespace ::Spree
+
+    engine_name 'solidus_sale_prices'
 
     # use rspec for tests
     config.generators do |g|
       g.test_framework :rspec
     end
-
-    def self.activate
-      Dir.glob(File.join(File.dirname(__FILE__), "../../app/**/*_decorator*.rb")) do |c|
-        Rails.configuration.cache_classes ? require(c) : load(c)
-      end
-    end
-
-    config.to_prepare &method(:activate).to_proc
   end
 end

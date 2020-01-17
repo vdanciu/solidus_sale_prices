@@ -1,14 +1,26 @@
-source 'http://rubygems.org'
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 branch = ENV.fetch('SOLIDUS_BRANCH', 'master')
-gem "solidus", github: "solidusio/solidus", branch: branch
+gem 'solidus', github: 'solidusio/solidus', branch: branch
 
-gem 'pg', '~> 0.21'
-gem 'mysql2'
+# Needed to help Bundler figure out how to resolve dependencies,
+# otherwise it takes forever to resolve them.
+# See https://github.com/bundler/bundler/issues/6677
+gem 'rails', '>0.a'
 
-# In order to allow testing on older version of Solidus that still
-# use the gem factory_girl we need to bundle an older version of
-# factory_bot:
-gem 'factory_bot', github: 'thoughtbot/factory_bot', ref: 'f1f77'
+# Provides basic authentication functionality for testing parts of your engine
+gem 'solidus_auth_devise'
+
+case ENV['DB']
+when 'mysql'
+  gem 'mysql2'
+when 'postgresql'
+  gem 'pg'
+else
+  gem 'sqlite3'
+end
 
 gemspec
