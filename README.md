@@ -1,4 +1,4 @@
-Spree Sale Prices
+Solidus Sale Prices
 =================
 
 [![Build Status](https://travis-ci.org/solidusio-contrib/solidus_sale_prices.svg?branch=master)](https://travis-ci.org/solidusio-contrib/solidus_sale_prices)
