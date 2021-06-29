@@ -1,6 +1,17 @@
 module Spree
   class SalePrice < ActiveRecord::Base
+    # The following code enables soft-deletion. In Solidus v2.11+ there is a mixin
+    # that handles soft-deletion consistently across all Solidus records that need
+    # it. Once we no longer support v2.10, we can remove the dependency on paranoia
+    # and replace these lines with:
+    #
+    #     include Spree::SoftDeletable
+    #
+    # However, this will be a breaking change as it will change the behaviour of
+    # calling `destroy` on these records.
     acts_as_paranoid
+    include Discard::Model
+    self.discard_column = :deleted_at
 
     belongs_to :price, class_name: "Spree::Price", touch: true
     belongs_to :price_with_deleted, -> { with_discarded }, class_name: "Spree::Price", foreign_key: :price_id
