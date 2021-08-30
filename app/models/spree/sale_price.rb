@@ -1,9 +1,20 @@
 module Spree
   class SalePrice < ActiveRecord::Base
+    # The following code enables soft-deletion. In Solidus v2.11+ there is a mixin
+    # that handles soft-deletion consistently across all Solidus records that need
+    # it. Once we no longer support v2.10, we can remove the dependency on paranoia
+    # and replace these lines with:
+    #
+    #     include Spree::SoftDeletable
+    #
+    # However, this will be a breaking change as it will change the behaviour of
+    # calling `destroy` on these records.
     acts_as_paranoid
+    include Discard::Model
+    self.discard_column = :deleted_at
 
     belongs_to :price, class_name: "Spree::Price", touch: true
-    belongs_to :price_with_deleted, -> { with_deleted }, class_name: "Spree::Price", foreign_key: :price_id
+    belongs_to :price_with_deleted, -> { with_discarded }, class_name: "Spree::Price", foreign_key: :price_id
 
     delegate :currency, :currency=, to: :price, allow_nil: true
 
@@ -16,7 +27,7 @@ module Spree
 
     before_save :compute_calculated_price
 
-    scope :ordered, -> { order('start_at IS NOT NULL, start_at ASC') }
+    scope :ordered, -> { order(Arel.sql('start_at IS NOT NULL, start_at ASC')) }
     scope :active, -> { where(enabled: true).where('(start_at <= ? OR start_at IS NULL) AND (end_at >= ? OR end_at IS NULL)', Time.now, Time.now) }
 
     # TODO make this work or remove it
@@ -49,11 +60,11 @@ module Spree
       end_time = nil if end_time.present? && end_time <= Time.now # if end_time is not in the future then make it nil (no end)
       attr = { end_at: end_time, enabled: true }
       attr[:start_at] = Time.now if self.start_at.present? && self.start_at > Time.now # only set start_at if it's not set in the past
-      update_attributes(attr)
+      update(attr)
     end
 
     def stop
-      update_attributes({ end_at: Time.now, enabled: false })
+      update({ end_at: Time.now, enabled: false })
     end
 
     # Convenience method for displaying the price of a given sale_price in the table
