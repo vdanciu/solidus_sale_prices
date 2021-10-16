@@ -108,7 +108,9 @@ module SolidusSalePrices
 
       private
       def first_sale(scope)
-        scope.order("created_at DESC").first
+        # adding 'order' to scope will invalidate any eager loading so
+        # better do it in memory
+        scope.sort { |p1, p2| p1.created_at <=> p2.created_at }.first
       end
 
       ::Spree::Price.prepend self
